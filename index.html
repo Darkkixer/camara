@@ -7,6 +7,7 @@ charset=utf-8">
 <script type="text/javascript" charset="utf-8" src="phonegap.js"></script>
 
 <script type="text/javascript" charset="utf-8">
+
 function onBodyLoad() {
 document.addEventListener("deviceready",onDeviceReady,
 false);
@@ -14,11 +15,108 @@ false);
 function onDeviceReady() {
 navigator.notification.alert("PhoneGap is ready!");
 }
+
+var pictureSource;   
+    var destinationType; 
+
+    
+    document.addEventListener("deviceready",onDeviceReady,false);
+
+    // Cordova is ready to be used!
+    //
+    function onDeviceReady() {
+        pictureSource=navigator.camera.PictureSourceType;
+        destinationType=navigator.camera.DestinationType;
+    }
+
+    // Called when a photo is successfully retrieved
+    //
+    function onPhotoDataSuccess(imageData) {
+      
+      var smallImage = document.getElementById('smallImage');
+
+          smallImage.style.display = 'block';
+
+      smallImage.src = "data:image/jpeg;base64," + imageData;
+    }
+
+    
+    function onPhotoURISuccess(imageURI) {
+      
+      var largeImage = document.getElementById('largeImage');
+
+      largeImage.style.display = 'block';
+
+      largeImage.src = imageURI;
+    }
+
+    // A button will call this function
+    //
+    function capturePhoto() {
+      // Take picture using device camera and retrieve image as base64-encoded string
+      navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 50,
+        destinationType: destinationType.DATA_URL });
+    }
+
+    // A button will call this function
+    //
+    function capturePhotoEdit() {
+      // Take picture using device camera, allow edit, and retrieve image as base64-encoded string  
+      navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 20, allowEdit: true,
+        destinationType: destinationType.DATA_URL });
+    }
+
+    // A button will call this function
+    //
+    function getPhoto(source) {
+      // Retrieve image file location from specified source
+      navigator.camera.getPicture(onPhotoURISuccess, onFail, { quality: 50, 
+        destinationType: destinationType.FILE_URI,
+        sourceType: source });
+    }
+
+    // Called if something bad happens.
+    // 
+    function onFail(message) {
+      alert('Failed because: ' + message);
+    }
+
+{ quality : 75, 
+  destinationType : Camera.DestinationType.DATA_URL, 
+  sourceType : Camera.PictureSourceType.CAMERA, 
+  allowEdit : true,
+  encodingType: Camera.EncodingType.JPEG,
+  targetWidth: 100,
+  targetHeight: 100,
+  popoverOptions: CameraPopoverOptions,
+  saveToPhotoAlbum: true };
+
+ Camera.DestinationType = {
+        DATA_URL : 0,                // Return image as base64 encoded string
+        FILE_URI : 1                 // Return image file URI
+    };
+Camera.PictureSourceType = {
+    PHOTOLIBRARY : 0,
+    CAMERA : 1,
+    SAVEDPHOTOALBUM : 2
+};
+ Camera.EncodingType = {
+        JPEG : 0,               // Return JPEG encoded image
+        PNG : 1                 // Return PNG encoded image
+    };
+
+
 </script>
 
 </head>
 <body onload="onBodyLoad()">
-<h1>HelloWorld2</h1>
-<p>This is a sample PhoneGap application.</p>
+<button onclick="capturePhoto();">Capture Photo</button> <br>
+    <button onclick="capturePhotoEdit();">Capture Editable Photo</button> <br>
+    <button onclick="getPhoto(pictureSource.PHOTOLIBRARY);">From Photo Library</button><br>
+    <button onclick="getPhoto(pictureSource.SAVEDPHOTOALBUM);">From Photo Album</button><br>
+    <img style="display:none;width:60px;height:60px;" id="smallImage" src="" />
+    <img style="display:none;" id="largeImage" src="" />
+
+
 </body>
 </html>
